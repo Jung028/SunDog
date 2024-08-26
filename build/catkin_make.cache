@@ -1,0 +1,2 @@
+notspot_sim_py/src/notspot:notspot_sim_py/src/notspot_controller:notspot_sim_py/src/notspot_description:notspot_sim_py/src/notspot_gazebo:notspot_sim_py/src/notspot_joystick:teleop_keyboard_omni3:teleop_motor_control
+-DCATKIN_DEVEL_PREFIX=/home/robot/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/robot/catkin_ws/install -G Unix Makefiles

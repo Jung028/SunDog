@@ -1,0 +1,8 @@
+prefix=/home/robot/catkin_ws/install
+
+Name: teleop_motor_control
+Description: Description of teleop_motor_control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
