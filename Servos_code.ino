@@ -1,14 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
 #include <ros.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Imu.h>
@@ -17,168 +6,33 @@
 #include <IMU.h>
 #include <trajectory_msgs/JointTrajectory.h> // Include the correct message type
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ros::NodeHandle nh;  // Create a NodeHandle
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ros::NodeHandle nh; // Create a NodeHandle
 
 sensor_msgs::Imu imu_msg;
 ros::Publisher imu_pub("imu/data", &imu_msg);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Replace the existing JointState subscriber with JointTrajectory subscriber
 void jointTrajectoryCallback(const trajectory_msgs::JointTrajectory& msg); // Callback function prototype
 ros::Subscriber<trajectory_msgs::JointTrajectory> joint_trajectory_sub("/joint_group_position_controller/command", &jointTrajectoryCallback);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Define JointState message and publisher
 sensor_msgs::JointState joint_msg;
 ros::Publisher joint_state_pub("joint_states", &joint_msg);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 cIMU imu;
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #define SERVOMIN  150
 #define SERVOMAX  600
 #define NUM_JOINTS 12
 #define PI 3.14159265358979323846
 
-
-
-
-
-
-
-
-
-
-
-
-float joint_angles[NUM_JOINTS] = {0}; // Array to store joint angles received from the callback of the jointTrajectory that is causing overflow.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+float joint_angles[NUM_JOINTS] = {0}; // Array to store joint angles
 
 // Function to convert radians to degrees and round to the nearest whole number
 int radiansToDegrees(float radians) {
     return round(radians * (180.0 / PI)); // Convert to degrees and round
 }
-
-
-
-
-
-
-
 
 // Function to set servo angles with new pin mapping
 void setServoAngle(int servo_num, int angle) {
@@ -187,340 +41,78 @@ void setServoAngle(int servo_num, int angle) {
     // Map the servo numbers to the correct PWM pin assignments
     int pwm_pin;
     if (servo_num >= 0 && servo_num <= 2) {
-        pwm_pin = servo_num;  // 0, 1, 2 map directly to 0, 1, 2
+        pwm_pin = servo_num;
     } else if (servo_num >= 3 && servo_num <= 5) {
-        pwm_pin = servo_num + 1;  // 3, 4, 5 map to 4, 5, 6
+        pwm_pin = servo_num + 1;
     } else if (servo_num >= 6 && servo_num <= 8) {
-        pwm_pin = servo_num + 2;  // 6, 7, 8 map to 8, 9, 10
+        pwm_pin = servo_num + 2;
     } else if (servo_num >= 9 && servo_num <= 11) {
-        pwm_pin = servo_num + 3;  // 9, 10, 11 map to 12, 13, 14
+        pwm_pin = servo_num + 3;
     } else {
-        return;  // Invalid servo number
+        return; // Invalid servo number
     }
-
-
-
-
-
-
-
-
-    pwm.setPWM(pwm_pin, 0, pulse_length);  // Set PWM for mapped pin
+    pwm.setPWM(pwm_pin, 0, pulse_length); // Set PWM for mapped pin
 }
-
-
-
-
-
-
-
 
 void jointTrajectoryCallback(const trajectory_msgs::JointTrajectory& msg) {
     if (msg.points_length > 0) {
         for (int i = 0; i < NUM_JOINTS; i++) {
             if (i < msg.points[0].positions_length) {
                 float angle = radiansToDegrees(msg.points[0].positions[i]);
-                joint_angles[i] = constrain(angle, 0, 180);  // Store the values of the joint angles received from the jointTrajectory callback into this local array joint_angles
+                joint_angles[i] = constrain(angle, 0, 180);
             }
         }
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Joint names
 char* joint_names[12] = {
-    "lf_hip_joint",
-    "lf_lower_leg_joint",
-    "lf_upper_leg_joint",
-    "lh_hip_joint",
-    "lh_lower_leg_joint",
-    "lh_upper_leg_joint",
-    "rf_hip_joint",
-    "rf_lower_leg_joint",
-    "rf_upper_leg_joint",
-    "rh_hip_joint",
-    "rh_lower_leg_joint",
-    "rh_upper_leg_joint"
+    "lf_hip_joint", "lf_lower_leg_joint", "lf_upper_leg_joint",
+    "lh_hip_joint", "lh_lower_leg_joint", "lh_upper_leg_joint",
+    "rf_hip_joint", "rf_lower_leg_joint", "rf_upper_leg_joint",
+    "rh_hip_joint", "rh_lower_leg_joint", "rh_upper_leg_joint"
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Callback for trajectory_msgs/JointTrajectory
 void trajectoryCallback(const trajectory_msgs::JointTrajectory& msg) {
-    // Make sure msg.points has valid positions
     if (msg.points) {
-        const auto& positions = msg.points->positions;  // Access directly without checking size
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        const auto& positions = msg.points->positions;
 
         // Update joint_msg with the positions from the trajectory message
         joint_msg.header.stamp = nh.now();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Assign the position array directly
         joint_msg.position = positions;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Assign joint names
         joint_msg.name = joint_names; // Use predefined C-style string array
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Publish updated JointState
-        // joint_state_pub.publish(&joint_msg);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Initialize subscriber
 ros::Subscriber<trajectory_msgs::JointTrajectory> trajectory_sub("/joint_group_position_controller/command", &trajectoryCallback);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void setup() {
     nh.initNode();
     nh.advertise(imu_pub);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    nh.subscribe(joint_trajectory_sub); // Subscribe to JointTrajectory messages
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Advertise and subscribe to the necessary topics
+    nh.subscribe(joint_trajectory_sub);
     nh.advertise(joint_state_pub);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     imu.begin();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     Serial.begin(57600);
     Serial.println("Adafruit 16 channel PWM/Servo test!");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     pwm.begin();
-    pwm.setPWMFreq(60);  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    pwm.setPWMFreq(60);
     delay(2);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 void loop() {
     static uint32_t pre_time;
     imu.update();
 
-
     // Update servos based on joint angles
     for (int i = 0; i < NUM_JOINTS; i++) {
-        setServoAngle(i, joint_angles[i]);  // Move servo to angle stored in joint_angles
+        setServoAngle(i, joint_angles[i]);
     }
-
 
     // Update and publish joint states at a regular interval
     if (millis() - pre_time >= 1000) {
         pre_time = millis();
-
 
         // Update IMU data
         imu_msg.header.stamp = nh.now();
@@ -537,48 +129,19 @@ void loop() {
         imu_msg.orientation.z = imu.quat[3];
         imu_pub.publish(&imu_msg);
 
-
         // Update joint states
         joint_msg.header.stamp = nh.now();
-        joint_msg.name = joint_names;  // Assign joint names
-
+        joint_msg.name = joint_names;
 
         // Assign current joint angles to the position array
         for (int i = 0; i < NUM_JOINTS; i++) {
-            joint_msg.position[i] = joint_angles[i];  // Convert angle to radians if necessary
+            joint_msg.position[i] = joint_angles[i];
         }
-
 
         // Publish the joint state message
         joint_state_pub.publish(&joint_msg);
     }
 
-
     nh.spinOnce();
     delay(2);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
