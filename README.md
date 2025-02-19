@@ -1,11 +1,8 @@
 # Final Year Project 
 
-Link to full documentation : __
+Link to full documentation : https://drive.google.com/file/d/1m5zop82CfQDfNUxipqevMrXIc9uzrJJz/view?usp=sharing 
 
-Will update code and readme upon completion 
-
-<img width="285" alt="Screenshot 2024-10-26 at 1 46 11 PM" src="https://github.com/user-attachments/assets/17f959e2-6b4d-4443-b358-1f0bde119b4a">
-
+![image](https://github.com/user-attachments/assets/5361df34-0e91-4a38-ad99-cf2e0dbd2648)
 
 Installation : 
 This was done using Ubuntu 20.04 noetic, on Jetson Nano Orin in HUMAC Lab Sunway Uni.
