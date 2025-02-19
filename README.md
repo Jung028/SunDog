@@ -50,7 +50,7 @@ roscd champ_navigation/rviz
 rviz -d navigate.rviz
 ```
 
-Then to save the map, run [16] :
+Then to save the map, run:
 ```
 roscd sundog_config/maps
 rosrun map_server map_saver
