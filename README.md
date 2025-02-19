@@ -15,7 +15,6 @@ sudo apt install libgflags-dev  ros-noetic-image-geometry ros-noetic-camera-info
 ```
 
 4. Plug in astra depth camera, then run the start camera
-*Follow installation steps for astra camera if havent yet : https://github.com/orbbec/ros_astra_camera
 
 ```
 source ./devel/setup.bash 
